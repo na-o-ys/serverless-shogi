@@ -1,0 +1,11 @@
+{
+  "name": "serverless-shogi",
+  "version": "0.0.1",
+  "main": "index.js",
+  "author": "na-o-ys",
+  "license": "MIT",
+  "dependencies": {
+    "aws-sdk": "^2.7.2",
+    "unzip": "^0.1.11"
+  }
+}
