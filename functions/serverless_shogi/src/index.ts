@@ -5,11 +5,12 @@ import split = require('split')
 
 export default async function(request, ctx, cb) {
   await setup()
-  const { byoyomi, position } = request
+  const { byoyomi, position, multipv = 1 } = request
+  console.log(request)
   setTimeout(() => { ctx.done('timeout') }, byoyomi + 5000)
 
   const gikou = spawn('./gikou', [], { cwd: '/tmp/' })
-  gikou.stdin.write(generateCommand(byoyomi, position))
+  gikou.stdin.write(generateCommand(byoyomi, position, multipv))
 
   const result = await getResult(gikou.stdout)
   return ctx.done(null, Object.assign({}, { request }, result))
@@ -34,11 +35,11 @@ function getResult(stdout: NodeJS.ReadableStream) {
   })
 }
 
-function generateCommand(byoyomi, position) {
+function generateCommand(byoyomi, position, multipv) {
   return `usi
 setoption name USI_Ponder value false
 setoption name USI_Hash value 1024
-setoption name MultiPV value 1
+setoption name MultiPV value ${multipv}
 isready
 usinewgame
 position ${position}
