@@ -1,7 +1,7 @@
 {
   "handler": "build.default",
   "runtime": "nodejs4.3",
-  "name": "serverless_shogi",
+  "name": "gikou",
   "hooks": {
     "build": "yarn install && yarn run build"
   }
