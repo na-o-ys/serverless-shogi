@@ -1,0 +1,20 @@
+{
+  "name": "serverless-shogi",
+  "version": "0.0.1",
+  "main": "index.js",
+  "author": "na-o-ys",
+  "license": "MIT",
+  "dependencies": {
+    "aws-sdk": "^2.7.2",
+    "split": "^1.0.0",
+    "unzip": "^0.1.11"
+  },
+  "scripts": {
+    "build": "tsc --outDir build"
+  },
+  "devDependencies": {
+    "@types/node": "^0.0.2",
+    "@types/split": "^0.3.28",
+    "typescript": "rc"
+  }
+}

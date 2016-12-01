@@ -1,0 +1,8 @@
+{
+  "handler": "build.default",
+  "runtime": "nodejs4.3",
+  "name": "serverless_shogi",
+  "hooks": {
+    "build": "yarn install && yarn run build"
+  }
+}
