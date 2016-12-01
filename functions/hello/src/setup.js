@@ -34,63 +34,39 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var child_process_1 = require("child_process");
-var setup_1 = require("./setup");
-var info_1 = require("./info");
-var split = require("split");
-function default_1(request, ctx, cb) {
+var fs = require("fs");
+var aws_sdk_1 = require("aws-sdk");
+var s3 = new aws_sdk_1.S3({ region: 'ap-northeast-1' });
+var GikouBinaries = ['gikou', 'book.bin', 'params.bin', 'probability.bin', 'progress.bin'];
+function setup() {
     return __awaiter(this, void 0, void 0, function () {
-        var byoyomi, position, gikou, result;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, setup_1.setup()];
+                case 0: return [4 /*yield*/, Promise.all(GikouBinaries.map(function (file) { return saveS3Object('naoys.gikou.binary', file, "/tmp/" + file); }))];
                 case 1:
                     _a.sent();
-                    byoyomi = request.byoyomi, position = request.position;
-                    gikou = child_process_1.spawn('./gikou', [], { cwd: '/tmp/' });
-                    gikou.stdin.write(generateCommand(byoyomi, position));
-                    setTimeout(function () { ctx.done('timeout'); }, byoyomi + 5000);
-                    return [4 /*yield*/, getResult(gikou.stdout)];
+                    return [4 /*yield*/, fs.chmod('/tmp/gikou', 493)];
                 case 2:
-                    result = _a.sent();
-                    return [2 /*return*/, ctx.done(null, result)];
+                    _a.sent();
+                    return [2 /*return*/];
             }
         });
     });
 }
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = default_1;
-function getResult(stdout) {
-    return __awaiter(this, void 0, void 0, function () {
-        var infoList;
-        return __generator(this, function (_a) {
-            infoList = [];
-            stdout.pipe(split()).on('data', function (data) {
-                var line = data.toString();
-                console.log(line);
-                var _a = line.split(" "), cmd = _a[0], words = _a.slice(1);
-                if (cmd == "info") {
-                    infoList.push(info_1.parse(words));
-                }
-                if (cmd == "bestmove") {
-                    var bestmove = words[0];
-                    var bestpv = infoList.reduce(function (bestinfo, info) {
-                        var depth = bestinfo["depth"] || 0;
-                        var seldepth = bestinfo["seldepth"] || 0;
-                        var curr_depth = info["depth"] || 0;
-                        var curr_seldepth = info["seldepth"] || 0;
-                        if (depth < curr_depth || (depth == curr_depth && seldepth < curr_seldepth)) {
-                            return info;
-                        }
-                        return bestinfo;
-                    });
-                    ctx.done(null, { request: request, bestmove: bestmove, bestpv: bestpv, info_list: infoList });
-                }
-            });
-            return [2 /*return*/];
-        });
-    });
+exports.setup = setup;
+function saveS3Object(bucket, key, dest) {
+    if (fs.existsSync(dest))
+        return Promise.resolve(dest);
+    return writeStreamToFile(dest, s3.getObject({
+        Bucket: bucket,
+        Key: key
+    }).createReadStream());
 }
-function generateCommand(byoyomi, position) {
-    return "usi\nsetoption name USI_Ponder value false\nsetoption name USI_Hash value 1024\nsetoption name MultiPV value 1\nisready\nusinewgame\nposition " + position + "\ngo btime 0 wtime 0 byoyomi " + byoyomi + "\n";
+function writeStreamToFile(filePath, readStream) {
+    return new Promise(function (resolve, reject) {
+        var file = fs.createWriteStream(filePath);
+        readStream.pipe(file);
+        file.on("finish", function () { return resolve(filePath); });
+        file.on("error", reject);
+    });
 }
