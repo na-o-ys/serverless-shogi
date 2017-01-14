@@ -1,8 +1,0 @@
-{
-  "name": "serverless-shogi",
-  "description": "",
-  "memory": 1536,
-  "timeout": 300,
-  "role": "arn:aws:iam::856743198237:role/serverless-shogi_lambda_function",
-  "environment": {}
-}

@@ -1,3 +1,3 @@
 ```
-$ apex deploy
+$ tsc & sls deploy
 ```
