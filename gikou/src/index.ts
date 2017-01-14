@@ -3,17 +3,25 @@ import { setup } from './setup'
 import { parse as parseInfo, selectBestPv } from './info'
 import split = require('split')
 
-export default async function(request, ctx, cb) {
+export default async function(event, context, callback) {
   await setup()
-  const { byoyomi, position, multipv = 1 } = request
-  console.log(request)
-  setTimeout(() => { ctx.done('timeout') }, byoyomi + 5000)
+  const { byoyomi, position, multipv = 1 } = event.queryStringParameters
+  console.log(event)
 
   const gikou = spawn('./gikou', [], { cwd: '/tmp/' })
   gikou.stdin.write(generateCommand(byoyomi, position, multipv))
 
   const result = await getResult(gikou.stdout)
-  return ctx.done(null, Object.assign({}, { request }, result))
+  gikou.kill()
+
+  const response = {
+    statusCode: 200,
+    body: JSON.stringify({
+      request: event.queryStringParameters,
+      ...result
+    })
+  }
+  callback(null, response)
 }
 
 function getResult(stdout: NodeJS.ReadableStream) {

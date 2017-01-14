@@ -10,11 +10,12 @@
     "unzip": "^0.1.11"
   },
   "scripts": {
-    "build": "tsc --outDir build"
+    "build": "tsc"
   },
   "devDependencies": {
+    "@types/aws-sdk": "^0.0.42",
     "@types/node": "^0.0.2",
     "@types/split": "^0.3.28",
-    "typescript": "rc"
+    "typescript": "^2.1.5"
   }
 }
